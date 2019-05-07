@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.hps.mapper.OrgMapper">
+	<select id="selectOrgByParentOrgId" parameterType="java.lang.Long"  resultType="com.github.hps.bean.Org">
+			SELECT ORGID,PARENTORGID,ORGNM FROM SYS_ORG
+			START WITH ORGID = #{orgId}
+			CONNECT BY PRIOR ORGID = PARENTORGID AND ISENABLED = 1
+	</select>
+</mapper>

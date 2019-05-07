@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.hps.mapper.HelperMapper">
+
+	<select id="getHelperCount" parameterType="map" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM HPS_HELPER_INFO
+          WHERE 1=1
+			and PARENT_ID=#{helperInfo.id}
+			and TYPE_ID=#{helperInfo.typeId}
+          and isenabled=1
+	</select>
+
+	<select id="getHelperList" parameterType="map" resultType="com.github.hps.vo.HelperInfoVoVersion1">
+		select * from(
+		select t.*,rownum rn from(
+		SELECT id,title,IMAGE_URL,FILE_URL,is_File,to_char(CREATIONTIME,'yyyy-mm-dd') as creationTime FROM HPS_HELPER_INFO
+          WHERE  1=1
+          and PARENT_ID=#{helperInfo.id}
+          and TYPE_ID=#{helperInfo.typeId}
+          and isenabled=1 order by creationTime desc
+        ) t where rownum &lt;=#{start}+#{limit}
+		) where rn &gt;#{start}
+	</select>
+
+	<select id="getNewHelperList" parameterType="map" resultType="com.github.hps.vo.HelperInfoVoVersion2">
+		select * from(
+		select t.*,rownum rn from(
+		SELECT id,title,IMAGE_URL,FILE_URL,is_File,to_char(CREATIONTIME,'yyyy-mm-dd') as creationTime,ReadCount FROM HPS_HELPER_INFO
+          WHERE PARENT_ID=#{helperInfo.id} and TYPE_ID=#{helperInfo.typeId} and isenabled=1  order by creationTime desc
+        ) t where rownum &lt;=#{start}+#{limit}
+		) where rn &gt;#{start}
+	</select>
+
+	<select id="getHelperVoidList" parameterType="map" resultType="com.github.hps.vo.HelperInfoVoidVo">
+		select * from(
+		select t.*,rownum rn from(
+		SELECT id,title,IMAGE_URL,FILE_URL,to_char(CREATIONTIME,'yyyy-mm-dd') as creationTime,ReadCount,videoTime FROM HPS_HELPER_INFO
+          WHERE PARENT_ID=#{helperInfo.id} and TYPE_ID=#{helperInfo.typeId} and isenabled=1 order by creationTime desc
+        ) t where rownum &lt;=#{start}+#{limit}
+		) where rn &gt;#{start}
+	</select>
+
+	<select id="getSearchHelperCount" parameterType="map" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM HPS_HELPER_INFO
+		WHERE 1=1 and PARENT_ID not in (1,2,3,4) and is_file!=0
+		<if test="search!=null and search!=''">
+			and title like '%'||#{search}||'%'
+		</if>
+		and isenabled=1
+	</select>
+
+	<select id="getSearchHelperList" parameterType="map" resultType="com.github.hps.vo.HelperInfoVoVersionNew">
+		select * from(
+		select t.*,rownum rn from(
+		SELECT id,title,IMAGE_URL,FILE_URL,is_File,to_char(CREATIONTIME,'yyyy-mm-dd') as creationTime,ReadCount,praise FROM HPS_HELPER_INFO
+		WHERE  1=1 and PARENT_ID not in (1,2,3,4) and is_file!=0
+		<if test="search!=null and search!=''">
+			and title like '%'||#{search}||'%'
+		</if>
+		and isenabled=1 order by creationTime desc
+		) t where rownum &lt;=#{start}+#{limit}
+		) where rn &gt;#{start}
+	</select>
+
+
+	<select id="getHelperClassificationList" parameterType="map" resultType="com.github.hps.vo.HelperInfoClassificationVo">
+		select * from(
+		select t.*,rownum rn from(
+		SELECT id,title AS name FROM HPS_HELPER_INFO
+          WHERE PARENT_ID=#{helperInfo.id} and TYPE_ID=#{helperInfo.typeId} and isenabled=1 order by creationTime desc
+        ) t where rownum &lt;=#{start}+#{limit}
+		) where rn &gt;#{start}
+	</select>
+
+	<select id="getHelperInfo" parameterType="java.lang.Long" resultType="com.github.hps.bean.HelperInfo">
+		SELECT * FROM HPS_HELPER_INFO WHERE ID=#{id}
+	</select>
+	<update id="recordRead" parameterType="java.lang.Long" >
+		UPDATE HPS_HELPER_INFO SET READCOUNT=READCOUNT+1 WHERE ID=#{id}
+	</update>
+
+	<update id="recordPraise" parameterType="java.lang.Long" >
+		UPDATE HPS_HELPER_INFO SET PRAISE=PRAISE+1 WHERE ID=#{id}
+	</update>
+
+	<select id="selectPraiseIsExist"  parameterType="com.github.hps.bean.HpsPraise" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM HPS_PRAISE WHERE ID=#{id} AND EMPLOYEEID=#{employeeId} AND USERID=#{userId}
+	</select>
+	<insert id="insertPraise"  parameterType="com.github.hps.bean.HpsPraise">
+		INSERT INTO HPS_PRAISE VALUES(#{id},#{employeeId},#{userId},sysdate)
+	</insert>
+</mapper>

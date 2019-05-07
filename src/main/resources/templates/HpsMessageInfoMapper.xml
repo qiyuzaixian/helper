@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.hps.mapper.HpsMessageInfoMapper">
+
+	<select id="getHpsMessageInfoCount" parameterType="map" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM HPS_MESSAGE_INFO
+          WHERE
+		    <if test="msgMode!=null">
+				MSG_MODE=#{msgMode} AND
+			</if>
+			ISENABLED=1
+	</select>
+
+	<select id="getHpsMessageInfoList" parameterType="map" resultType="com.github.hps.vo.HpsMessageInfoVo">
+		SELECT * FROM(
+		SELECT T.ID,T.MSG_TITLE,SHORT_MESSAGE,TO_CHAR(T.CREATIONTIME,'yyyy-mm-dd') AS CREATIONTIME,ROWNUM RN FROM (
+			SELECT ID,MSG_TITLE,substr(SHORT_MESSAGE,1,100) AS SHORT_MESSAGE,CREATIONTIME FROM HPS_MESSAGE_INFO
+          		WHERE 
+          		<if test="msgMode!=null">
+					MSG_MODE=#{msgMode} AND
+				</if>
+          		 ISENABLED=1 ORDER BY CREATIONTIME DESC
+		)T WHERE ROWNUM  &lt;=#{start}+#{limit}
+	) WHERE rn &gt;#{start}
+	</select>
+
+	<select id="getHpsMessageInfoById" parameterType="java.lang.Long" resultType="com.github.hps.vo.HpsMessageInfoVo">
+		SELECT ID,MSG_TITLE,SHORT_MESSAGE,TO_CHAR(CREATIONTIME,'yyyy-mm-dd') AS CREATIONTIME FROM HPS_MESSAGE_INFO WHERE ID=#{id}
+	</select>
+
+	<select id="getHpsMessageInfoByModeFirst" parameterType="java.lang.Integer" resultType="com.github.hps.vo.HpsMessageInfoVo">
+	SELECT * FROM (
+  		SELECT ID,MSG_TITLE,SHORT_MESSAGE,TO_CHAR(CREATIONTIME,'yyyy-mm-dd') AS CREATIONTIME FROM HPS_MESSAGE_INFO WHERE
+		<if test="msgMode!=null">
+		MSG_MODE=#{msgMode} AND
+		</if>
+		ISENABLED=1 ORDER BY CREATIONTIME DESC
+	) WHERE ROWNUM=1
+	</select>
+</mapper>

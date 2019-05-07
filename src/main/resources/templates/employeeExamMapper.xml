@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.hps.mapper.EmployeeExamMapper">
+	<sql id="employExam">
+		b.title as "exam.title",
+		b.duration as "exam.duration" ,
+		b.eSTime as "exam.eSTime",
+		b.eETime as "exam.eETime",
+		b.isAllowRepeat as
+		"exam.isAllowRepeat",
+		a.examstatus,
+		a.employeeId,
+		a.examId as
+		"exam.examId",
+		a.stageSeq,
+		a.sTime,
+		a.eTime,
+		a.maxScore,
+		a.examRkndCd,
+		a.examRknd
+	</sql>
+	<select id="count" parameterType="map" resultType="java.lang.Integer">
+		select count(1) from (select distinct
+		<include refid="employExam" />
+		FROM TRN_EMPLOYEXAM A
+		INNER JOIN SYS_USER U1 ON U1.EMPLOYEEID = A.EMPLOYEEID AND
+		U1.ISENABLED = 1
+		inner join BPM_EXAM B on A.examid=B.examid
+		where
+		A.isEnabled=1 and B.isEnabled=1 and A.employeeId=#{employeeExam.employeeId}
+		<if test="employeeExam.exam.examKind!=null ">
+			and b.examKind=#{employeeExam.exam.examKind}
+		</if>
+		<if test="employeeExam.examStatus!=null ">
+			and A.examStatus=#{employeeExam.examStatus}
+		</if>
+		<if test="employeeExam.sTime!=null">
+			AND to_date(to_char(A.sTime,'yyyy-MM-dd'),'yyyy-MM-DD')
+			&gt;=
+			to_date(to_char(#{employeeExam.sTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+		</if>
+		<if test="employeeExam.eTime!=null">
+			AND to_date(to_char(A.eTime,'yyyy-MM-dd'),'yyyy-MM-DD')
+			&lt;=
+			to_date(to_char(#{employeeExam.eTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+		</if>
+		<if test="employeeExam.exam !=null ">
+			<if
+				test="employeeExam.exam.eSTime!=null and employeeExam.exam.eETime!=null">
+				AND(
+				(to_date(to_char(B.eSTime,'yyyy-MM-dd'),'yyyy-MM-DD') &gt;=
+				to_date(to_char(#{employeeExam.exam.eSTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				AND to_date(to_char(B.eSTime,'yyyy-MM-dd'),'yyyy-MM-DD') &lt;=
+				to_date(to_char(#{employeeExam.exam.eETime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				)
+				or (to_date(to_char(B.eETime,'yyyy-MM-dd'),'yyyy-MM-DD') &gt;=
+				to_date(to_char(#{employeeExam.exam.eSTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				AND to_date(to_char(B.eETime,'yyyy-MM-dd'),'yyyy-MM-DD') &lt;=
+				to_date(to_char(#{employeeExam.exam.eETime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				)
+				or (to_date(to_char(B.eSTime,'yyyy-MM-dd'),'yyyy-MM-DD') &lt;=
+				to_date(to_char(#{employeeExam.exam.eSTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				AND to_date(to_char(B.eETime,'yyyy-MM-dd'),'yyyy-MM-DD') &gt;=
+				to_date(to_char(#{employeeExam.exam.eETime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				)
+				)
+			</if>
+		</if>
+		)T
+	</select>
+	<select id="page" parameterType="map"
+		resultType="com.github.hps.bean.EmployeeExam">
+		select t.*,rownum rn from(
+		select distinct b.title as
+		"exam.title",
+		b.duration as "exam.duration" ,
+		b.eSTime as "exam.eSTime",
+		b.eETime as "exam.eETime",
+		b.examKind as "exam.examKind",
+		b.isAllowRepeat as "exam.isAllowRepeat",
+		b.examStatus as "exam.examStatus",
+		a.examstatus,
+		a.employeeId,
+		a.examId as "exam.examId",
+		STA.stageSeq as "stageSeq",
+		a.sTime,
+		a.eTime,
+		a.maxScore,
+		a.score,
+		a.examRkndCd,
+		a.examRknd,
+		case when B.Isallowrepeat =
+		0 then 0 else
+		case when B.eETime &gt; sysdate then 1 else 0 end
+		end as
+		isTure,
+		NVL(D.examIng,0) AS "exam.examIng"
+		from TRN_EMPLOYEXAM A
+		INNER JOIN SYS_USER U1 ON
+		U1.EMPLOYEEID = A.EMPLOYEEID AND U1.ISENABLED = 1
+		INNER JOIN
+		BPM_EXAM B on A.examId=B.examId
+		LEFT JOIN Bpm_Exam_Count STA ON
+		STA.examid=A.examId
+		LEFT JOIN ( SELECT count(1) AS examIng,examid FROM
+		TRN_EMPLOYEXAM WHERE
+		EXAMSTATUS=1 GROUP BY examid) D ON D.examid =
+		A.EXAMID
+		where A.isEnabled=1 and B.isEnabled=1 and
+		A.employeeId=#{employeeExam.employeeId}
+		<if test="employeeExam.exam.examKind!=null ">
+			and b.examKind=#{employeeExam.exam.examKind}
+		</if>
+		<if test="employeeExam.examStatus!=null ">
+			and A.examStatus=#{employeeExam.examStatus}
+		</if>
+		<if test="employeeExam.sTime!=null">
+			AND to_date(to_char(A.sTime,'yyyy-MM-dd'),'yyyy-MM-DD')
+			&gt;=
+			to_date(to_char(#{employeeExam.sTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+		</if>
+		<if test="employeeExam.eTime!=null">
+			AND to_date(to_char(A.eTime,'yyyy-MM-dd'),'yyyy-MM-DD')
+			&lt;=
+			to_date(to_char(#{employeeExam.eTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+		</if>
+		<if test="employeeExam.exam !=null ">
+			<if
+				test="employeeExam.exam.eSTime!=null and employeeExam.exam.eETime!=null">
+				AND(
+				(to_date(to_char(B.eSTime,'yyyy-MM-dd'),'yyyy-MM-DD') &gt;=
+				to_date(to_char(#{employeeExam.exam.eSTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				AND to_date(to_char(B.eSTime,'yyyy-MM-dd'),'yyyy-MM-DD') &lt;=
+				to_date(to_char(#{employeeExam.exam.eETime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				)
+				or (to_date(to_char(B.eETime,'yyyy-MM-dd'),'yyyy-MM-DD') &gt;=
+				to_date(to_char(#{employeeExam.exam.eSTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				AND to_date(to_char(B.eETime,'yyyy-MM-dd'),'yyyy-MM-DD') &lt;=
+				to_date(to_char(#{employeeExam.exam.eETime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				)
+				or (to_date(to_char(B.eSTime,'yyyy-MM-dd'),'yyyy-MM-DD') &lt;=
+				to_date(to_char(#{employeeExam.exam.eSTime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				AND to_date(to_char(B.eETime,'yyyy-MM-dd'),'yyyy-MM-DD') &gt;=
+				to_date(to_char(#{employeeExam.exam.eETime},'yyyy-mm-dd'),'yyyy-mm-dd')
+				)
+				)
+			</if>
+		</if>
+		order by a.examId desc
+		) t
+	</select>
+	<select id="getThisPaper" statementType="CALLABLE"
+		parameterType="map">
+        <![CDATA[
+            {call PROC_StartExam (
+            #{examId,mode=IN,jdbcType=NUMERIC},
+            #{stageSeq,mode=IN,jdbcType=NUMERIC},
+            #{employeeId,mode=IN,jdbcType=VARCHAR})}
+        ]]>
+	</select>
+	<select id="getEmployeeExamById" parameterType="com.github.hps.bean.EmployeeExam"
+		resultType="com.github.hps.bean.EmployeeExam">
+		select
+		<include refid="employExam" />
+		from TRN_EMPLOYEXAM a
+		inner join BPM_EXAM b on a.examId = b.examId
+		where a.employeeId = #{employeeId}
+		and a.examId = #{exam.examId}
+		and a.stageSeq = #{stageSeq}
+	</select>
+	<resultMap id="employeeExamDMap"
+		type="com.github.hps.bean.EmployeeExamD">
+		<id property="questions.questionId" column="questionId" />
+		<result property="title" column="title" />
+		<result property="qustkSeq" column="qustkSeq" />
+		<result property="seq" column="seq" />
+		<result property="questions.kPoints" column="kpoints" />
+		<result property="questions.result" column="questionsResult" />
+		<result property="questions.title" column="questionsTitle" />
+		<result property="questions.title" column="questionsTitle" />
+		<result property="topicTypeId" column="topicTypeId" />
+		<result property="result" column="result" />
+		<result property="isRightKey" column="isRightKey" />
+		<result property="score" column="score" />
+		<collection property="questions.questionsDList"
+			ofType="com.github.hps.bean.QuestionsD">
+			<id property="questionId" column="questionId" />
+			<id property="seq" column="optionSeq" />
+			<result property="optionDescr" column="optionDescr" />
+			<result property="isRightKey" column="isRightKeyD" />
+		</collection>
+	</resultMap>
+	 <sql id="employeeExamD">
+        a.qustkSeq,
+        a.seq,
+        a.questionId,
+        a.title,
+        b.kpoints,
+        b.result as "questionsResult",
+        b.title as "questionsTitle",
+        a.result,
+        a.isRightKey,
+        a.score,
+        c.optionDescr,
+        c.isRightKey as isRightKeyD,
+        c.seq as "optionSeq",
+        d.topicTypeId
+    </sql>
+	
+	<select id="getEmployeeExamDList" resultMap="employeeExamDMap">
+		select
+		<include refid="employeeExamD" />
+		from TRN_EMPLOYEXAMD a
+		inner join TRN_QUESTIONS b on a.questionid = b.questionid
+		inner join BPM_EXAM_QTD d on a.examId = d.examId and a.qustkSeq =
+		d.qustkSeq
+		left join TRN_QUESTIONSD c on a.questionid = c.questionid
+		where a.employeeId = #{employeeExam.employeeId}
+		and a.examId = #{employeeExam.exam.examId}
+		and a.stageSeq = #{employeeExam.stageSeq}
+		and a.paperId = #{papers.paperId}
+		and a.empExamId = #{empExamId}
+		order by a.qustkSeq asc,c.seq asc
+	</select>
+	
+    <sql id="employeeExamPdColumns">
+        a.employeeId as "employeeExam.employeeId",
+        a.examId as "employeeExam.exam.examId",
+        a.stageSeq as "employeeExam.stageSeq",
+        a.paperId as "papers.paperId",
+        a.empExamId,
+        a.sTime,
+        a.eTime,
+        a.maxScore,
+        a.rExTimes,
+        a.examStatus
+    </sql>
+	<select id="getEmployeeExamPdList" resultType="com.github.hps.bean.EmployeeExamPd">
+		select
+		<include refid="employeeExamPdColumns" />
+		from TRN_EMPLOYEXAMPD a
+		where a.employeeId = #{employeeId}
+		and a.examId = #{exam.examId}
+		and a.stageSeq = #{stageSeq}
+		order by a.examStatus asc,a.empExamId asc
+	</select>
+	<select id="getExamNum" resultType="java.lang.Integer">
+		select value from
+		sys_datadict where isenabled = 1 and dictcd = 'EXAMNUM'
+	</select>
+	<!--查询当前考试人数 -->
+	<select id="getNowExamNum" resultType="java.lang.Integer">
+		select count(1) from
+		TRN_EMPLOYEXAM where Isenabled = 1 and Examstatus = 1
+	</select>
+	<!--获取当前场馆考试的Id与闯关数 -->
+	<select id="getIdAndStageSeqWithExamId" parameterType="java.lang.Long"
+		resultType="com.github.hps.bean.BPMExamCount">
+		select B.* from BPM_EXAM_count B where examid= #{examId}
+	</select>
+	<!--获取上一场闯关考试的信息 -->
+	<select id="getLastExamIdWithIdAndStageSeq" parameterType="map"
+		resultType="java.lang.Long">
+		select examid from Bpm_Exam_Count where id= #{id} and
+		stageseq= #{stageSeq}
+	</select>
+	<!--获取上一场闯关考试的PassScore -->
+	<select id="getLastExamPassScoreWithExamId" parameterType="java.lang.Long"
+		resultType="map">
+		select * from BPM_EXAM where examid= #{examId}
+	</select>
+	<!--获取上一场闯关考试的详细信息 -->
+	<select id="getLastExamDetailsWithExamId" parameterType="map"
+		resultType="com.github.hps.bean.EmployeeExam">
+		select * from TRN_EMPLOYEXAM where examid = #{examId} and
+		employeeid =
+		#{employeeId}
+	</select>
+	<update id="beginExamPd">
+        update TRN_EMPLOYEXAMPD set
+        STIME = sysdate,
+        EXAMSTATUS = 1,
+        REXTIMES = (CASE WHEN STIME IS NULL THEN 0 ELSE REXTIMES + 1 END)
+        where employeeId = #{employeeId}
+        and examId = #{examId}
+        and stageSeq = #{stageSeq}
+        and paperId = #{paperId}
+        and empExamId = #{empExamId}
+    </update>
+    <update id="beginExam">
+        update TRN_EMPLOYEXAM set
+        EXAMSTATUS =(CASE WHEN EXAMSTATUS = 0 THEN 1 ELSE 1 END),
+        REXTIMES =  (CASE WHEN REXTIMES IS NULL THEN 0 WHEN  REXTIMES = 99 THEN 99 ELSE REXTIMES + 1 END)
+        where employeeId = #{employeeId}
+        and examId = #{examId}
+        and stageSeq = #{stageSeq}
+    </update>
+	 <update id="finishExamPd">
+        update TRN_EMPLOYEXAMPD set
+        ETIME = sysdate,
+        EXAMSTATUS = 2
+        where employeeId = #{employeeId}
+        and examId = #{examId}
+        and stageSeq = #{stageSeq}
+        and paperId = #{paperId}
+        and empExamId = #{empExamId}
+    </update>
+    <update id="finishExam">
+        update TRN_EMPLOYEXAM set
+        EXAMSTATUS =2,
+        MODIFIER = #{userId},
+        MODIFYTIME = sysdate
+        where employeeId = #{employeeId}
+        and examId = #{examId}
+        and stageSeq = #{stageSeq}
+    </update>
+      <select id="getExamResult" statementType="CALLABLE" parameterType="map">
+        <![CDATA[
+            {call PROC_PaperInspections (
+            #{employeeId,mode=IN,jdbcType=NUMERIC},
+            #{examId,mode=IN,jdbcType=NUMERIC},
+            #{stageSeq,mode=IN,jdbcType=NUMERIC},
+            #{paperId,mode=IN,jdbcType=NUMERIC},
+            #{empExamId,mode=IN,jdbcType=NUMERIC})}
+        ]]>
+    </select>
+      <!--保存答案-->
+    <update id="saveExamAnswer">
+        update TRN_EMPLOYEXAMD set result = #{result}
+        where employeeId = #{employeeExamPd.employeeExam.employeeId}
+        and examId = #{employeeExamPd.employeeExam.exam.examId}
+        and stageSeq = #{employeeExamPd.employeeExam.stageSeq}
+        and paperId = #{employeeExamPd.papers.paperId}
+        and empExamId = #{employeeExamPd.empExamId}
+        and qustkSeq = #{qustkSeq}
+        and seq = #{seq}
+        and questionId = #{questions.questionId}
+    </update>
+	<select id="getRank" parameterType="Map" resultType="com.github.hps.bean.ExamRank">
+			SELECT * FROM (SELECT t.*, ROWNUM RANK
+			  FROM (SELECT *
+					  FROM (SELECT M.USERID, N.*, B.ROLENAME
+							  FROM SYS_USER M
+							 INNER JOIN (SELECT A.*,B.SEX, B.EMPLOYEENM,B.ORGID,B.PHONEPATH, C.ORGNM
+										  FROM (SELECT EMPLOYEEID,MAXSCORE,MODIFYTIME FROM TRN_EMPLOYEXAM
+												 WHERE EXAMID = #{examId}) A
+										 INNER JOIN SYS_EMPLOYEE B ON A.EMPLOYEEID = B.EMPLOYEEID AND B.ISENABLED = 1
+										 INNER JOIN SYS_ORG C ON B.ORGID = C.ORGID) N
+								ON M.EMPLOYEEID = N.EMPLOYEEID
+							 INNER JOIN (SELECT * FROM SYS_USERCOORDORGS
+										 WHERE USERRREL = 1 AND ISENABLED = 1 AND ROLEID != 49) A ON A.USERID = M.USERID
+							 INNER JOIN SYS_ROLE B ON A.ROLEID = B.ROLEID)
+					 ORDER BY MAXSCORE DESC, MODIFYTIME) T)
+	</select>
+	<select id="getRankCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+		      SELECT COUNT(*)FROM SYS_USER M
+                           INNER JOIN (SELECT A.*,B.SEX, B.EMPLOYEENM,B.ORGID,B.PHONEPATH, C.ORGNM
+                                      FROM (SELECT EMPLOYEEID,MAXSCORE,MODIFYTIME FROM TRN_EMPLOYEXAM
+                                             WHERE EXAMID = #{examId} ) A
+                                     INNER JOIN SYS_EMPLOYEE B ON A.EMPLOYEEID = B.EMPLOYEEID AND B.ISENABLED = 1
+                                     INNER JOIN SYS_ORG C ON B.ORGID = C.ORGID) N
+                            ON M.EMPLOYEEID = N.EMPLOYEEID
+                         INNER JOIN (SELECT * FROM SYS_USERCOORDORGS
+                                     WHERE USERRREL = 1 AND ISENABLED = 1 AND ROLEID != 49) A ON A.USERID = M.USERID
+	</select>
+	<select id="getMyRank" parameterType="Map" resultType="com.github.hps.bean.ExamRank">
+		SELECT * FROM (SELECT t.*, ROWNUM RANK
+          FROM (SELECT *
+                  FROM (SELECT M.USERID, N.*, B.ROLENAME
+                          FROM SYS_USER M
+                         INNER JOIN (SELECT A.*,B.SEX, B.EMPLOYEENM,B.ORGID,B.PHONEPATH, C.ORGNM
+                                      FROM (SELECT EMPLOYEEID,MAXSCORE,MODIFYTIME FROM TRN_EMPLOYEXAM
+                                             WHERE EXAMID = #{examId} AND ISENABLED = 1) A
+                                     INNER JOIN SYS_EMPLOYEE B ON A.EMPLOYEEID = B.EMPLOYEEID AND B.ISENABLED = 1
+                                     INNER JOIN SYS_ORG C ON B.ORGID = C.ORGID) N
+                            ON M.EMPLOYEEID = N.EMPLOYEEID
+                         INNER JOIN (SELECT * FROM SYS_USERCOORDORGS
+                                     WHERE USERRREL = 1 AND ISENABLED = 1 AND ROLEID != 49) A ON A.USERID = M.USERID
+                         INNER JOIN SYS_ROLE B ON A.ROLEID = B.ROLEID)
+                 ORDER BY MAXSCORE DESC, MODIFYTIME) T)
+          WHERE EMPLOYEEID=#{employeeId}
+	</select>
+	<select id="getEmployeeId" parameterType="java.lang.Long" resultType="java.lang.Long">
+	SELECT * FROM (SELECT N.*
+                          FROM SYS_USER M
+                         INNER JOIN (SELECT A.EMPLOYEEID
+                                      FROM (SELECT EMPLOYEEID FROM TRN_EMPLOYEXAM  WHERE EXAMID =#{examId}) A
+                                     INNER JOIN SYS_EMPLOYEE B ON A.EMPLOYEEID = B.EMPLOYEEID AND B.ISENABLED = 1) N
+                            ON M.EMPLOYEEID = N.EMPLOYEEID
+                         INNER JOIN (SELECT * FROM SYS_USERCOORDORGS
+                                     WHERE USERRREL = 1 AND ISENABLED = 1 AND ROLEID != 49) A ON A.USERID = M.USERID
+                         INNER JOIN SYS_ROLE B ON A.ROLEID = B.ROLEID)
+	</select>
+	<select id="selectLastExamId" parameterType="java.lang.Integer" resultType="java.lang.Long">
+        SELECT * FROM (SELECT EXAMID FROM BPM_EXAM WHERE EXAMKIND=#{examKind} ORDER BY CREATIONTIME DESC )WHERE rownum = 1
+    </select>
+</mapper>
