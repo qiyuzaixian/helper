@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -40,7 +41,7 @@ public class BannerManageController {
     @ResponseBody
     public Map selectAll(Model model) throws Exception {
         List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
-        InputStream in = BannerManageController.class.getResourceAsStream("/resources.properties");
+        InputStream in = BannerManageController.class.getResourceAsStream("/application-dev.properties");
         Properties properties = new Properties();
         properties.load(in);
         String path = properties.getProperty("uploadify.ip");
