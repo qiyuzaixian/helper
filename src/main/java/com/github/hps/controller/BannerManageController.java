@@ -1,6 +1,10 @@
 package com.github.hps.controller;
 
 import com.github.hps.bean.BannerManage;
+import com.github.hps.bean.Photo;
+import com.github.hps.bean.User;
+import com.github.hps.result.CodeMsg;
+import com.github.hps.result.Result;
 import com.github.hps.service.BannerManageService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +43,9 @@ public class BannerManageController {
      */
     @RequestMapping("/findAll")
     @ResponseBody
-    public Map selectAll(Model model) throws Exception {
+    public Result<BannerManage> selectAll(Model model) throws Exception {
+        Result result = null;
+
         List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
         InputStream in = BannerManageController.class.getResourceAsStream("/application-dev.properties");
         Properties properties = new Properties();
@@ -47,25 +53,24 @@ public class BannerManageController {
         String path = properties.getProperty("uploadify.ip");
         path += properties.getProperty("uploadify.parentNewFile");
 
-        HashMap map = new HashMap();
-        map.put("code", "0");
-        map.put("msg", "请求成功");
-
-        HashMap map2 = new HashMap();
         List list = new ArrayList();
+
         for (BannerManage bannerManage : bannerManages) {
             String photo = bannerManage.getPhoto();
             String newPhoto = path + "/" + photo.substring(photo.lastIndexOf("\\") + 1);
-
+            Photo p = new Photo();
             if (photo != null) {
-                list.add(newPhoto);
+                p.setPhoto(newPhoto);
+                list.add(photo);
             }
         }
-        map2.put("item", list);
-        map.put("data", map2);
+        if(list.size()>0){
+            result = Result.success(list);
+        }else if(list.size()<0){
+            result = Result.error(CodeMsg.IDCARD_NOT_EXIST);
+        }
         in.close();
-        System.out.println(map);
-        return map;
+        return result;
     }
 
 }
