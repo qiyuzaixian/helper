@@ -10,7 +10,7 @@ public class DBUtil {
 	private static Properties props;
 	static {
 		try {
-			InputStream in = DBUtil.class.getClassLoader().getResourceAsStream("application-dev.properties");
+			InputStream in = DBUtil.class.getClassLoader().getResourceAsStream("application.properties");
 			props = new Properties();
 			props.load(in);
 			in.close();
