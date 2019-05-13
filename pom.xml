@@ -179,7 +179,7 @@
 						<contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
 							<!--设置虚拟路径  -->
 							<contextPath>/zbtFile</contextPath>
-							<resourceBase>F:/BugNet/zbtFile</resourceBase>
+							<resourceBase>d:/BugNet/zbtFile</resourceBase>
 						</contextHandler>
 					</contextHandlers>
 					<connectors>

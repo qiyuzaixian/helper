@@ -46,29 +46,44 @@ public class BannerManageController {
     public Map<String, Object> selectAll(Model model) throws Exception {
         Result result = null;
         Map<String, Object> resultMap = new HashMap<>(16);
+        List<BannerManage> bannerManagesNew = new ArrayList<>(16);
+        InputStream in=null;
+        try {
+            List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
+            in = BannerManageController.class.getResourceAsStream("/application-dev.properties");
+            BannerManage bannerManageNew;
+            Properties properties = new Properties();
+            properties.load(in);
+            String path = properties.getProperty("uploadify.ip");
+            path += properties.getProperty("uploadify.parentNewFile2");
 
-        List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
-        InputStream in = BannerManageController.class.getResourceAsStream("/application-dev.properties");
-        Properties properties = new Properties();
-        properties.load(in);
-        String path = properties.getProperty("uploadify.ip");
-        path += properties.getProperty("uploadify.parentNewFile");
+            Map<String, Object> dataMap = new HashMap<>(16);
+            String photo;
+            for (BannerManage bannerManage : bannerManages) {
+                bannerManageNew = new BannerManage();
+                photo = bannerManage.getPhoto();
+                bannerManageNew=bannerManage;
+                bannerManageNew.setPhotoNew( path + "/" + photo.substring(photo.lastIndexOf("\\") + 1));
+                bannerManagesNew.add(bannerManageNew);
+            }
 
-        Map<String, Object> photoMap = new HashMap<>(16);
-        Map<String, Object> dataMap = new HashMap<>(16);
 
-        for (BannerManage bannerManage : bannerManages) {
-            String photo = bannerManage.getPhoto();
-            String newPhoto = path + "/" + photo.substring(photo.lastIndexOf("\\") + 1);
-            photoMap.put("photo",newPhoto);
+            dataMap.put("item",bannerManagesNew);
+            resultMap.put("data",dataMap);
+            result = Result.error(CodeMsg.SUCCESS);
+        }catch (Exception e){
+            result = Result.error(CodeMsg.SERVER_ERROR);
+        }finally {
+            try {
+                in.close();
+            }catch(Exception e){
+                result = Result.error(CodeMsg.SERVER_ERROR);
+            }
         }
 
-        result = Result.error(CodeMsg.IDCARD_NOT_EXIST);
-        in.close();
-        dataMap.put("item",photoMap);
         resultMap.put("msg",result.getMsg());
         resultMap.put("code",result.getCode());
-        resultMap.put("data",dataMap);
+
         return resultMap;
     }
 

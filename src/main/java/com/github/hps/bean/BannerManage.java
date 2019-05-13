@@ -19,6 +19,16 @@ public class BannerManage implements Serializable {
     private  Integer isEnabled;
     private  Integer orderNum; // 序号
     private  String photo;
+    private String photoNew;
+
+
+    public String getPhotoNew() {
+        return photoNew;
+    }
+
+    public void setPhotoNew(String photoNew) {
+        this.photoNew = photoNew;
+    }
 
     public Long getBannerId() {
         return bannerId;
