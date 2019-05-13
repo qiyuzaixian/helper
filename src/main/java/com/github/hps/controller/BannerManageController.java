@@ -53,22 +53,16 @@ public class BannerManageController {
         String path = properties.getProperty("uploadify.ip");
         path += properties.getProperty("uploadify.parentNewFile");
 
-        List list = new ArrayList();
 
         for (BannerManage bannerManage : bannerManages) {
             String photo = bannerManage.getPhoto();
             String newPhoto = path + "/" + photo.substring(photo.lastIndexOf("\\") + 1);
             Photo p = new Photo();
             if (photo != null) {
-                p.setPhoto(newPhoto);
-                list.add(photo);
+                result = Result.success(p);
             }
         }
-        if(list.size()>0){
-            result = Result.success(list);
-        }else if(list.size()<0){
-            result = Result.error(CodeMsg.IDCARD_NOT_EXIST);
-        }
+        result = Result.error(CodeMsg.IDCARD_NOT_EXIST);
         in.close();
         return result;
     }
