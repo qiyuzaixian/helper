@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @author ZhangChao
@@ -28,6 +30,7 @@ public class BannerManageController {
 
     /**
      * 查询所有数据
+     *
      * @param model
      * @return java.lang.String
      * @author ZhangChao
@@ -35,10 +38,33 @@ public class BannerManageController {
      */
     @RequestMapping("/findAll")
     @ResponseBody
-    public List<BannerManage> selectAll(Model model) {
+    public Map selectAll(Model model) throws Exception {
         List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
-        System.out.println(bannerManages);
-        return bannerManages;
+        InputStream in = BannerManageController.class.getResourceAsStream("/resources.properties");
+        Properties properties = new Properties();
+        properties.load(in);
+        String path = properties.getProperty("uploadify.ip");
+        path += properties.getProperty("uploadify.parentNewFile");
+
+        HashMap map = new HashMap();
+        map.put("code", "0");
+        map.put("msg", "请求成功");
+
+        HashMap map2 = new HashMap();
+        List list = new ArrayList();
+        for (BannerManage bannerManage : bannerManages) {
+            String photo = bannerManage.getPhoto();
+            String newPhoto = path + "/" + photo.substring(photo.lastIndexOf("\\") + 1);
+
+            if (photo != null) {
+                list.add(newPhoto);
+            }
+        }
+        map2.put("item", list);
+        map.put("data", map2);
+        in.close();
+        System.out.println(map);
+        return map;
     }
 
 }
