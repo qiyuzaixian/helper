@@ -43,8 +43,9 @@ public class BannerManageController {
      */
     @RequestMapping("/findAll")
     @ResponseBody
-    public Result<BannerManage> selectAll(Model model) throws Exception {
+    public Map<String, Object> selectAll(Model model) throws Exception {
         Result result = null;
+        Map<String, Object> resultMap = new HashMap<>(16);
 
         List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
         InputStream in = BannerManageController.class.getResourceAsStream("/application-dev.properties");
@@ -53,18 +54,22 @@ public class BannerManageController {
         String path = properties.getProperty("uploadify.ip");
         path += properties.getProperty("uploadify.parentNewFile");
 
+        Map<String, Object> photoMap = new HashMap<>(16);
+        Map<String, Object> dataMap = new HashMap<>(16);
 
         for (BannerManage bannerManage : bannerManages) {
             String photo = bannerManage.getPhoto();
             String newPhoto = path + "/" + photo.substring(photo.lastIndexOf("\\") + 1);
-            Photo p = new Photo();
-            if (photo != null) {
-                result = Result.success(p);
-            }
+            photoMap.put("photo",newPhoto);
         }
+
         result = Result.error(CodeMsg.IDCARD_NOT_EXIST);
         in.close();
-        return result;
+        dataMap.put("item",photoMap);
+        resultMap.put("msg",result.getMsg());
+        resultMap.put("code",result.getCode());
+        resultMap.put("data",dataMap);
+        return resultMap;
     }
 
 }
