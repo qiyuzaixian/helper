@@ -31,6 +31,11 @@ public class HelperController {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
     }
+
+
+
+
+
     @RequestMapping("/getNewHelperList")//新接口，
     @ResponseBody
     public Result<Map<String,Object>> getNewHelperList(@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize,@RequestParam("id")Long id ,@RequestParam("typeId")Integer typeId,@RequestParam ("token") String token) {
@@ -89,6 +94,30 @@ public class HelperController {
             return Result.success(msg);
         } catch (Exception e) {
             e.printStackTrace();
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping("/saveStartTime")//历史版本
+    @ResponseBody
+    public Result<Message> saveStartTime(@RequestParam("id")Long id, @RequestParam ("token") String token) {
+        try {
+            Message msg=new Message();
+            msg.setMessage(helperService.saveStartTime(id,token));
+            return Result.success(msg);
+        } catch (Exception e) {
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping("/saveEndTime")//历史版本
+    @ResponseBody
+    public Result<Message> saveEndTime(@RequestParam("id")Long id, @RequestParam ("token") String token) {
+        try {
+            Message msg=new Message();
+            msg.setMessage(helperService.saveEndTime(id,token));
+            return Result.success(msg);
+        } catch (Exception e) {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
     }

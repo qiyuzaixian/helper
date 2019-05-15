@@ -23,7 +23,9 @@ public interface HelperMapper {
     HelperInfo getHelperInfo(Long id);
     void recordRead(Long id);
     void recordPraise(Long id);
-
+    //记录学习时长
+    void saveStartTime(HelperTimes helperTimes);
+    void saveEndTime(HelperTimes helperTimes);
     //点赞功能
     Long selectPraiseIsExist(HpsPraise hpsPraise);
     void insertPraise(HpsPraise hpsPraise);

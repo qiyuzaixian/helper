@@ -89,4 +89,17 @@
 	<insert id="insertPraise"  parameterType="com.github.hps.bean.HpsPraise">
 		INSERT INTO HPS_PRAISE VALUES(#{id},#{employeeId},#{userId},sysdate)
 	</insert>
+
+	<insert id="saveStartTime" parameterType="com.github.hps.bean.HelperTimes" >
+		insert into hps_helper_times(orgId,userId,helperId,startTime,billDate)
+		values(#{orgId},#{userId},#{helperId},sysdate,sysdate)
+	</insert>
+
+	<update id="saveEndTime" parameterType="com.github.hps.bean.HelperTimes">
+		update hps_helper_times
+        set endTime = sysdate
+        where orgid = #{orgId} and userId=#{userId} and helperId = #{helperId}
+        and  billdate = (select max(billdate) from hps_helper_times
+        where orgid = #{orgId} and userId=#{userId} and helperId = #{helperId} and endtime is null )
+	</update>
 </mapper>

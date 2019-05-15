@@ -158,6 +158,27 @@ public class HelperService {
             return "点赞成功！";
         }
     }
+    @Transactional
+    public String saveStartTime(Long id,String token) {
+        User user=redisService.get(UserKey.token, token, User.class);
+        HelperTimes helperTimes=new HelperTimes();
+        helperTimes.setHelperId(id);
+        helperTimes.setOrgId(user.getOrgId());
+        helperTimes.setUserId(user.getUserId());
+        helperMapper.saveStartTime(helperTimes);
+        return "保存成功！";
+    }
+
+    @Transactional
+    public String saveEndTime(Long id,String token) {
+        User user=redisService.get(UserKey.token, token, User.class);
+        HelperTimes helperTimes=new HelperTimes();
+        helperTimes.setHelperId(id);
+        helperTimes.setOrgId(user.getOrgId());
+        helperTimes.setUserId(user.getUserId());
+        helperMapper.saveEndTime(helperTimes);
+        return "保存成功！";
+    }
 
 
 }
