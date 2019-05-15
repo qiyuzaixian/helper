@@ -63,7 +63,7 @@ public class BannerManageController {
                 bannerManageNew = new BannerManage();
                 photo = bannerManage.getPhoto();
                 bannerManageNew=bannerManage;
-                bannerManageNew.setPhotoNew( path + "/" + photo.substring(photo.lastIndexOf("\\") + 1));
+                bannerManageNew.setPhotoNew( path + "/" + photo.substring(photo.lastIndexOf("/") + 1));
                 bannerManagesNew.add(bannerManageNew);
             }
 
