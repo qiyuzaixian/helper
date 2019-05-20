@@ -54,8 +54,7 @@ public class BannerManageController {
             BannerManage bannerManageNew;
             Properties properties = new Properties();
             properties.load(in);
-            String path = properties.getProperty("uploadify.ip");
-            path += properties.getProperty("uploadify.parentNewFile2");
+            String path = "http://app.dmt80.com:8081/zbtFile/learningNav/";
 
             Map<String, Object> dataMap = new HashMap<>(16);
             String photo;
@@ -63,7 +62,7 @@ public class BannerManageController {
                 bannerManageNew = new BannerManage();
                 photo = bannerManage.getPhoto();
                 bannerManageNew=bannerManage;
-                bannerManageNew.setPhotoNew( path + "/learningNav/" + photo.substring(photo.lastIndexOf("/") + 1));
+                bannerManageNew.setPhotoNew( path + photo.substring(photo.lastIndexOf("/") + 1));
                 bannerManagesNew.add(bannerManageNew);
             }
 
