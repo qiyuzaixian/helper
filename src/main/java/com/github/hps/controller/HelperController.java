@@ -121,7 +121,6 @@ public class HelperController {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
     }
-
     @RequestMapping("/getVideoList")//资讯接口
     @ResponseBody
     public Result<Map<String,Object>> getVideoList(@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize) {

@@ -94,7 +94,6 @@
 		insert into hps_helper_times(orgId,userId,helperId,startTime,billDate)
 		values(#{orgId},#{userId},#{helperId},sysdate,sysdate)
 	</insert>
-
 	<update id="saveEndTime" parameterType="com.github.hps.bean.HelperTimes">
 		update hps_helper_times
         set endTime = sysdate
