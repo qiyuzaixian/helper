@@ -17,11 +17,11 @@ public interface UserMapper {
     @Select("SELECT T1.PHONE1 as id,T2.USERID,T2.EMPLOYEEID,T2.USERNAME as nickname,T2.PSWD as password, '' as salt,T1.ORGID,T1.SEX,T1.PHONEPATH FROM sys_employee t1 INNER JOIN sys_user t2  ON T2.EMPLOYEEID = T1.EMPLOYEEID where T1.ISENABLED = 1 AND T2.ISENABLED = 1 AND T1.PHONE1 = #{id}")
     List<User> getById(@Param("id")String id);//手机号登录
 
-    @Select("SELECT T1.PHONE1 as id,T2.USERID,T2.EMPLOYEEID,T2.USERNAME as nickname,T2.PSWD as password, '' as salt,T1.ORGID, " +
+    @Select("SELECT T1.PHONE1 as id,T2.USERID,T2.EMPLOYEEID,T2.USERNAME as nickname,T2.PSWD as password, '' as salt,T5.ORGID, " +
             "T1.SEX,T1.PHONEPATH,decode(t5.orgCtype,1,'机关',2,'针剂',3,'口服',4,'民康','系统') as orgNm FROM sys_employee t1  " +
-            "INNER JOIN sys_user t2  ON T2.EMPLOYEEID = T1.EMPLOYEEID  inner join sys_org t3 on t1.orgid=t3.orgid   " +
+            "INNER JOIN sys_user t2  ON T2.EMPLOYEEID = T1.EMPLOYEEID   " +
             "inner join sys_usercoordorgs t4 on t4.userid = t2.userId  inner join sys_org t5 on t5.orgid = t4.orgId  " +
-            "where T1.ISENABLED = 1 AND T2.ISENABLED = 1 AND T1.IDCARD = #{id}")
+            "where T1.ISENABLED = 1 AND T2.ISENABLED = 1 AND T4.ISENABLED = 1 AND T1.IDCARD = #{id}")
     List<User> getByIdCard(@Param("id")String id);//身份证登录
 
     @Select("select  b.orgId as orgId1,b.orgNm as orgNm1,c.orgId as orgId2,c.orgNm as orgNm2,d.orgId as orgId3,d.orgNm as orgNm3,e.orgId as orgId4,e.orgNm as orgNm4  from (" +
