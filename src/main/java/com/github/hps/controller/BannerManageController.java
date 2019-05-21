@@ -45,8 +45,8 @@ public class BannerManageController {
     @ResponseBody
     public Map<String, Object> selectAll(Model model) throws Exception {
         Result result = null;
-        Map<String, Object> resultMap = new HashMap<>(16);
-        List<BannerManage> bannerManagesNew = new ArrayList<>(16);
+        Map<String, Object> resultMap = new HashMap<String, Object>(16);
+        List<BannerManage> bannerManagesNew = new ArrayList<BannerManage>(16);
         InputStream in=null;
         try {
             List<BannerManage> bannerManages = bannerManageService.selectBannerManageInfoList();
@@ -56,7 +56,7 @@ public class BannerManageController {
             properties.load(in);
             String path = "http://app.dmt80.com:8081/zbtFile/learningNav/";
 
-            Map<String, Object> dataMap = new HashMap<>(16);
+            Map<String, Object> dataMap = new HashMap<String, Object>(16);
             String photo;
             for (BannerManage bannerManage : bannerManages) {
                 bannerManageNew = new BannerManage();
@@ -64,8 +64,8 @@ public class BannerManageController {
                 bannerManageNew=bannerManage;
                 bannerManageNew.setPhotoNew( path + photo.substring(photo.lastIndexOf("/") + 1));
                 bannerManagesNew.add(bannerManageNew);
-            }
 
+        }
 
             dataMap.put("item",bannerManagesNew);
             resultMap.put("data",dataMap);
