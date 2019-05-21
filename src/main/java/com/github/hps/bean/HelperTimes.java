@@ -18,7 +18,6 @@ public class HelperTimes implements Serializable {
     private Date startDate;//開始時間
     private Date endDate;//結束時間
     private Date billDate;//发布日期
-
     public Long getOrgId() {
         return orgId;
     }
